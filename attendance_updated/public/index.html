@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Attendance Management System</title>
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+
+    <!-- PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- Chart -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="app.js" defer></script>
+    <script src="admin.js" defer></script>
+</head>
+<body>
+
+<header class="topbar">
+    <div>
+        <h1>MOHD HASAN PG COLLEGE JAUNPUR</h1>
+        <p>Attendance Management Portal</p>
+    </div>
+    <button id="themeBtn" class="secondary-btn">Dark Mode</button>
+</header>
+
+<main class="container">
+
+    <!-- LOGIN -->
+    <section id="loginView" class="login-grid">
+
+        <div class="panel">
+            <h2>Department Login</h2>
+            <form id="loginForm">
+                <label>Department</label>
+                <select id="teacherDepartment" required></select>
+
+                <label>Password</label>
+                <input id="teacherPassword" type="password" required>
+
+                <button type="submit">Department Login</button>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h2>Principal Login</h2>
+            <form id="principalLoginForm">
+                <label>Username</label>
+                <input id="principalUsername" required>
+
+                <label>Password</label>
+                <input id="principalPassword" type="password" required>
+
+                <button type="submit">Principal Login</button>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h2>Student Login</h2>
+            <form id="studentLoginForm">
+                <label>Department</label>
+                <select id="studentDepartment" required></select>
+
+                <label>Semester</label>
+                <select id="studentSemester" required></select>
+
+                <label>Section</label>
+                <select id="studentSection" required>
+                    <option value="A">Section A</option>
+                    <option value="B">Section B</option>
+                    <option value="C">Section C</option>
+                    <option value="D">Section D</option>
+                </select>
+
+                <label>Student Name</label>
+                <input id="studentName" required>
+
+                <label>Roll Number</label>
+                <input id="studentRoll" required>
+
+                <button type="submit">Student Login</button>
+            </form>
+        </div>
+
+
+        <div class="panel">
+            <h2>Admin Login</h2>
+            <form id="adminLoginForm">
+                <label>Username</label><input id="adminUsername" required autocomplete="username">
+                <label>Password</label><input id="adminPassword" type="password" required autocomplete="current-password">
+                <button type="submit">Admin Login</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- ADMIN DASHBOARD -->
+    <section id="adminView" class="hidden">
+      <div class="dashboard-heading"><div><h2>Admin Super Dashboard</h2><p id="adminWelcome">Full system management</p></div><button class="danger-btn logoutBtn">Logout</button></div>
+      <div class="stats-grid" id="adminStats"></div>
+      <div class="panel"><h3>Add Teacher</h3><form id="adminTeacherForm" class="form-grid">
+        <div><label>Teacher Name</label><input id="adminTeacherName" placeholder="Enter teacher name" maxlength="100" required></div><div><label>Department</label><select id="adminTeacherDepartment" required></select></div><button type="submit">Add Teacher</button></form></div>
+      <div class="panel"><h3>Teacher / Principal Accounts</h3><div id="adminUsers"></div></div>
+      <div class="panel"><h3>All Classes</h3><div id="adminClasses"></div></div>
+      <div class="panel"><h3>All Students</h3><div id="adminStudents"></div></div>
+      <div class="panel" id="archivedStudentsPanel">
+        <div class="section-heading"><div><h3>Archived Students</h3><p>Restore students without losing previous attendance history.</p></div>
+          <button type="button" id="refreshArchivedStudentsBtn" class="secondary-btn">Refresh</button></div>
+        <div id="adminArchivedStudents"><div class="archived-empty">Archived students will appear here.</div></div>
+      </div>
+      <div class="panel"><h3>Student Attendance Records</h3><div id="adminAttendance"></div></div>
+    </section>
+
+    <!-- TEACHER DASHBOARD -->
+    <section id="teacherView" class="hidden">
+
+        <div class="dashboard-heading">
+            <div>
+                <h2>Department Dashboard</h2>
+                <p id="teacherWelcome"></p>
+            </div>
+            <button class="danger-btn logoutBtn">Logout</button>
+        </div>
+
+        <div class="panel">
+            <h3>Create Class</h3>
+            <form id="createClassForm" class="form-grid">
+                <div>
+                    <label>Semester</label>
+                    <select id="classSemester" required></select>
+                </div>
+                <div>
+                    <label>Section</label>
+                    <select id="classSection">
+                        <option>A</option><option>B</option>
+                        <option>C</option><option>D</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Class / Subject Name</label>
+                    <input id="classSubject" placeholder="e.g. B.A. 1st Year - Hindi" required>
+                </div>
+                <div>
+                    <label>Teacher Name</label>
+                    <input id="classTeacherName" placeholder="Enter teacher name" maxlength="100" required>
+                </div>
+                <button type="submit">Create Class</button>
+            </form>
+        </div>
+
+        <div class="panel">
+            <h3>My Department Classes</h3>
+            <div id="teacherClasses" class="class-grid"></div>
+        </div>
+
+        <div id="teacherClassPanel" class="panel hidden">
+            <h3 id="activeClassTitle">Selected Class — Student Attendance</h3>
+
+            <div class="toolbar">
+                <div>
+                    <label>Attendance Date</label>
+                    <input type="date" id="attendanceDate">
+                </div>
+                <button id="loadAttendanceBtn">Load Attendance</button>
+                <button id="saveAttendanceBtn">Save Attendance</button>
+            </div>
+
+            <div class="toolbar">
+                <input id="studentSearch" placeholder="Search student name or roll">
+                <button id="showStudentsBtn" class="secondary-btn">Refresh Students</button>
+            </div>
+
+            <div id="attendanceClassInfo"></div>
+            <div id="studentList"></div>
+            <p id="emptyStudentsMessage" class="muted"></p>
+
+            <hr>
+
+            <h3>Add Student</h3>
+            <form id="addStudentForm" class="form-grid">
+                <div>
+                    <label>Student Name</label>
+                    <input id="newStudentName" required>
+                </div>
+                <div>
+                    <label>Roll Number</label>
+                    <input id="newStudentRoll" required>
+                </div>
+                <div>
+                    <label>Email (optional)</label>
+                    <input id="newStudentEmail" type="email">
+                </div>
+                <button type="submit">Add Student</button>
+            </form>
+
+            <hr>
+
+            <h3>Attendance Report</h3>
+            <div class="date-filter">
+                <div>
+                    <label>From Date</label>
+                    <input type="date" id="teacherFrom">
+                </div>
+                <div>
+                    <label>To Date</label>
+                    <input type="date" id="teacherTo">
+                </div>
+                <button id="teacherReportBtn">Show Report</button>
+            </div>
+
+            <div class="export-buttons">
+                <button id="teacherExcelBtn">Download Excel</button>
+                <button id="teacherPdfBtn">Download PDF</button>
+                <button id="teacherPrintBtn" class="secondary-btn">Print Report</button>
+            </div>
+
+            <div id="teacherReport"></div>
+        </div>
+    </section>
+
+    <!-- PRINCIPAL DASHBOARD -->
+    <section id="principalView" class="hidden">
+
+        <div class="dashboard-heading">
+            <div>
+                <h2>Principal Dashboard</h2>
+                <p id="principalWelcome"></p>
+            </div>
+            <button class="danger-btn logoutBtn">Logout</button>
+        </div>
+
+        <div class="panel"><h3>Teacher Attendance (All Departments)</h3><div class="toolbar"><div><label>Date</label><input type="date" id="principalTeacherDate"></div><button id="loadTeacherAttendance">Load Teachers</button><button id="saveTeacherAttendance">Save Teacher Attendance</button></div><div id="principalTeacherAttendance"></div><div id="principalTeacherHistory" class="teacher-history-panel"></div></div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 id="pClassCount">0</h3>
+                <p>Total Classes</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="pStudentCount">0</h3>
+                <p>Total Students</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="pAttendanceDays">0</h3>
+                <p>Attendance Days</p>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>Filter Classes</h3>
+
+            <div class="form-grid">
+                <div>
+                    <label>Department</label>
+                    <select id="pDepartment"></select>
+                </div>
+                <div>
+                    <label>Semester</label>
+                    <select id="pSemester"></select>
+                </div>
+                <div>
+                    <label>Section</label>
+                    <select id="pSection">
+                        <option value="">All Sections</option>
+                        <option>A</option><option>B</option>
+                        <option>C</option><option>D</option>
+                    </select>
+                </div>
+                <button id="filterClassesBtn">Filter Classes</button>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>Available Classes</h3>
+            <div id="principalClassRows" class="class-grid"></div>
+            <p id="principalNoClass" class="muted"></p>
+        </div>
+
+        <div id="principalReportPanel" class="panel hidden">
+            <h3 id="principalReportTitle">Class Report</h3>
+
+            <div class="date-filter">
+                <div>
+                    <label>From Date</label>
+                    <input type="date" id="principalFrom">
+                </div>
+                <div>
+                    <label>To Date</label>
+                    <input type="date" id="principalTo">
+                </div>
+                <button id="principalReportBtn">Show Report</button>
+            </div>
+
+            <div class="export-buttons">
+                <button id="principalExcelBtn">Download Excel</button>
+                <button id="principalPdfBtn">Download PDF</button>
+                <button id="principalPrintBtn" class="secondary-btn">Print Report</button>
+            </div>
+
+            <div id="principalReport"></div>
+        </div>
+    </section>
+
+    <!-- STUDENT DASHBOARD -->
+    <section id="studentView" class="hidden">
+
+        <div class="dashboard-heading">
+            <div>
+                <h2>Student Dashboard</h2>
+                <p id="studentWelcome"></p>
+            </div>
+            <button class="danger-btn logoutBtn">Logout</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3 id="myPresent">0</h3>
+                <p>Present</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="myTotal">0</h3>
+                <p>Total Classes</p>
+            </div>
+            <div class="stat-card">
+                <h3 id="myPercent">0%</h3>
+                <p>Attendance Percentage</p>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>My Attendance History</h3>
+
+            <div class="date-filter">
+                <div>
+                    <label>From Date</label>
+                    <input type="date" id="studentFrom">
+                </div>
+                <div>
+                    <label>To Date</label>
+                    <input type="date" id="studentTo">
+                </div>
+                <button id="studentReportBtn">Show Attendance</button>
+            </div>
+
+            <div class="export-buttons">
+                <button id="studentExcelBtn">Download Excel</button>
+                <button id="studentPdfBtn">Download PDF</button>
+                <button id="studentPrintBtn" class="secondary-btn">Print Report</button>
+            </div>
+
+            <div id="studentHistory"></div>
+        </div>
+    </section>
+
+    <div id="messageBox" class="message hidden"></div>
+
+</main>
+
+<footer>
+    <p>College Attendance Management System</p>
+    <p>© 2026 All Rights Reserved</p>
+</footer>
+
+</body>
+</html>
