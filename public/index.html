@@ -1,5 +1,116 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#3d16a5"><meta name="description" content="MH PG College Jaunpur Attendance Management System"><title>MH PG College | Attendance Management System</title><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png"><link rel="manifest" href="/manifest.json"><link rel="stylesheet" href="style.css"><script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script src="app.js" defer></script><script src="admin.js" defer></script><script src="ui.js" defer></script></head>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#3d16a5"><meta name="description" content="MH PG College Jaunpur Attendance Management System"><title>MH PG College | Attendance Management System</title><link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/assets/apple-touch-icon.png"><link rel="manifest" href="/manifest.json"><link rel="stylesheet" href="style.css">
+<style id="mobile-login-layout-fix">
+/* Keep the student artwork and its text in separate areas on phones. */
+@media (max-width: 700px) {
+  .login-main {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 18px !important;
+  }
+
+  .student-scene {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    min-height: 0 !important;
+    height: auto !important;
+    padding: 22px 16px 18px !important;
+    overflow: hidden !important;
+    text-align: center !important;
+  }
+
+  .student-scene .scene-copy {
+    position: relative !important;
+    inset: auto !important;
+    z-index: 2 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    text-align: center !important;
+  }
+
+  .student-scene .scene-copy h2 {
+    margin: 8px 0 !important;
+    font-size: clamp(1.35rem, 6vw, 1.9rem) !important;
+    line-height: 1.2 !important;
+  }
+
+  .student-scene .scene-copy p {
+    margin: 8px 0 0 !important;
+  }
+
+  .student-scene .scene-copy ul {
+    display: inline-block !important;
+    margin: 4px 0 0 !important;
+    padding-left: 18px !important;
+    text-align: left !important;
+  }
+
+  .student-scene .student-mascot {
+    position: relative !important;
+    inset: auto !important;
+    z-index: 1 !important;
+    display: block !important;
+    width: min(78%, 300px) !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 320px !important;
+    object-fit: contain !important;
+    margin: 4px auto 0 !important;
+    transform: none !important;
+  }
+
+  .student-scene .float-chip {
+    position: static !important;
+    display: inline-flex !important;
+    margin: 3px 4px 0 !important;
+    transform: none !important;
+  }
+
+  .student-scene .scene-bottom {
+    position: static !important;
+    width: 100% !important;
+    margin-top: 4px !important;
+    justify-content: center !important;
+  }
+
+  .login-card {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .login-shell,
+  .container {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .login-tabs {
+    flex-wrap: wrap !important;
+  }
+
+  .login-tab {
+    flex: 1 1 42% !important;
+    min-width: 0 !important;
+  }
+}
+
+@media (max-width: 380px) {
+  .student-scene {
+    padding: 18px 12px 14px !important;
+  }
+  .student-scene .student-mascot {
+    width: min(84%, 260px) !important;
+    max-height: 280px !important;
+  }
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><script src="app.js" defer></script><script src="admin.js" defer></script><script src="ui.js" defer></script></head>
 <body><header class="brand-header"><div class="brand-pill"><img src="/assets/college-emblem.svg" alt="MH PG College emblem"><div class="brand-title"><h1>MOHD HASAN PG COLLEGE</h1><div class="brand-city"><i></i><span>JAUNPUR</span><i></i></div></div></div><div class="header-install"><div class="chrome-mark">◉</div><div><strong>Install in Chrome</strong><span>Use Like an App</span></div><button id="installAppBtn" class="install-mini" type="button">Install App</button></div></header>
 <main class="container"><section id="loginView" class="login-shell"><div class="login-heading"><span>MOHD HASAN PG COLLEGE</span><h2>JAUNPUR</h2><div class="system-ribbon">Attendance Management System</div></div><div class="login-main"><div class="student-scene"><div class="campus-glow"></div><div class="scene-copy"><span class="scene-tag">SMART CAMPUS • DIGITAL INDIA</span><h2>Smart Attendance.<br><em>Better Education.</em></h2><p>Track attendance easily and stay connected with your academic journey.</p></div><img class="student-mascot" src="/assets/student-mascot.png" alt="3D student with laptop and backpack"><div class="float-chip chip-calendar">▦ <small>Smart Attendance</small></div><div class="float-chip chip-chart">▥ <small>Live Reports</small></div><div class="scene-bottom">Digital Campus <b>🇮🇳</b><span>Digital India</span></div></div>
 <div class="login-card"><div class="cap-bubble">🎓</div><h2>Login to Your Account</h2><p class="login-subtitle">Access your dashboard securely</p><div class="login-tabs" role="tablist" aria-label="Login type"><button type="button" class="login-tab active" data-login-tab="department" role="tab" aria-selected="true"><span>🏛</span>Department</button><button type="button" class="login-tab" data-login-tab="principal" role="tab" aria-selected="false"><span>♟</span>Principal</button><button type="button" class="login-tab" data-login-tab="student" role="tab" aria-selected="false"><span>🎓</span>Student</button><button type="button" class="login-tab" data-login-tab="admin" role="tab" aria-selected="false"><span>⚙</span>Admin</button></div>
